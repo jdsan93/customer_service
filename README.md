@@ -1,24 +1,40 @@
-# README
+# Customer Service
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+## Overview
 
-Things you may want to cover:
+`customer_service` is a Rails 7 API that owns the customer directory and order counts.
+It provides:
 
-* Ruby version
+- `GET /customers/:id` – returns the customer profile (name, address, `orders_count`).
+- A RabbitMQ consumer (`bin/rails order_events:consume`) that listens for
+  `order.created` events and increments the matching customer's `orders_count`.
 
-* System dependencies
+All customer data lives in PostgreSQL and a seed file keeps a small catalog for local
+testing.
 
-* Configuration
+## Dependencies
 
-* Database creation
+- Ruby 3.0.2 / Bundler 2.4.x
+- PostgreSQL (same DB server used by the root project)
+- RabbitMQ connection string (`RABBITMQ_URL`)
 
-* Database initialization
+## Running locally
 
-* How to run the test suite
+```bash
+bundle install
+bin/rails db:prepare db:seed
+RABBITMQ_URL=amqp://guest:guest@localhost:5672 bin/rails s -b 0.0.0.0 -p 4000
+```
 
-* Services (job queues, cache servers, search engines, etc.)
+To update `orders_count` automatically, start the consumer in a separate terminal:
 
-* Deployment instructions
+```bash
+RABBITMQ_URL=amqp://guest:guest@localhost:5672 bin/rails order_events:consume
+```
 
-* ...
+When the order service publishes `order.created`, this consumer loads the customer and
+increments their running order total. The API can then be queried by the order service
+or any other consumer that needs customer metadata.
+
+For end-to-end instructions coordinating both services, refer to the parent
+`README.md` in the repository root.
