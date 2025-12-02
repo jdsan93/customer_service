@@ -17,8 +17,3 @@ RSpec.describe Customer, type: :model do
     expect(build(:customer, orders_count: -1)).not_to be_valid
   end
 end
-require 'rails_helper'
-
-RSpec.describe Customer, type: :model do
-  pending "add some examples to (or delete) #{__FILE__}"
-end

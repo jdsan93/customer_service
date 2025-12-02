@@ -25,6 +25,25 @@ RSpec.describe OrderEvents::OrderCreatedProcessor do
         expect(logger).to have_received(:warn).with(/Customer .* not found/)
       end
     end
+
+    context "when payload nests order data" do
+      let(:customer) { create(:customer, orders_count: 0) }
+      let(:payload) do
+        {
+          "event" => "order.created",
+          "order" => {
+            "id" => "abc",
+            "customer_id" => customer.id
+          }
+        }
+      end
+
+      it "pulls the customer_id from payload['order']" do
+        described_class.new(payload, logger: logger).call
+
+        expect(customer.reload.orders_count).to eq(1)
+      end
+    end
   end
 end
 

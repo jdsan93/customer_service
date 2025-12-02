@@ -5,10 +5,3 @@ FactoryBot.define do
     orders_count { 0 }
   end
 end
-FactoryBot.define do
-  factory :customer do
-    customer_name { "MyString" }
-    address { "MyString" }
-    orders_count { 1 }
-  end
-end
